@@ -51,25 +51,23 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
         return (user.username === req.body.username)
     });
     
-    console.log(validusers);
     if(validusers.length > 0){
         var b = books[req.params.isbn];
+
         let filtered_array = _.filter(
-            b, function (o) {
-                return (b.username == req.body.username)
+            b.reviews, function (o) {
+                return (o.username === req.body.username)
             }
         );
-     
+        
         console.log(filtered_array);
         if(filtered_array.length > 0){
-            let rArray = _.filter(
-                b.reviews, function (o) {
-                    return (b.username == req.body.username)
-                }
-            );
-            rArray["review"] =req.body.review;
-           
             
+            _.forEach(b.reviews, function (value, key) {
+                if(value.username == req.body.username){
+                    books[req.params.isbn].reviews[key].review = req.body.review;
+                }
+            });
         }else{
             b.reviews.push({"username":req.body.username, "review":req.body.review});
         }
