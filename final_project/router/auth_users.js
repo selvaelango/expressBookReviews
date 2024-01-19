@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 let books = require("./booksdb.js");
+const _ = require('lodash');
 const regd_users = express.Router();
 
 let users = [];
@@ -46,8 +47,38 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    let validusers = users.filter((user)=>{
+        return (user.username === req.body.username)
+    });
+    
+    console.log(validusers);
+    if(validusers.length > 0){
+        var b = books[req.params.isbn];
+        let filtered_array = _.filter(
+            b, function (o) {
+                return (b.username == req.body.username)
+            }
+        );
+     
+        console.log(filtered_array);
+        if(filtered_array.length > 0){
+            let rArray = _.filter(
+                b.reviews, function (o) {
+                    return (b.username == req.body.username)
+                }
+            );
+            rArray["review"] =req.body.review;
+           
+            
+        }else{
+            b.reviews.push({"username":req.body.username, "review":req.body.review});
+        }
+       
+        return  res.send(JSON.stringify(b));
+         
+    } else {
+        return res.status(208).json({message: "User not loggedin"});
+    }
 });
 
 module.exports.authenticated = regd_users;
